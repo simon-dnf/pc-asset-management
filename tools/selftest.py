@@ -290,6 +290,45 @@ check("비밀번호 변경", r.status_code == 200, r.text)
 check("변경 후 세션 만료", c.get("/api/me").status_code == 401)
 check("새 비번 로그인", c.post("/api/login", json={"username": "admin", "password": "newpass123"}).status_code == 200)
 
+print("== OS 지원종료일(EOL) 외부 연동 ==")
+# 외부 API가 막힌 환경에서도 자체 점검이 실패하면 안 된다 → 연결 여부와 무관하게 통과해야 하는 것만 본다.
+from app.services import eol as _eol
+r = c.get("/api/eol")
+check("EOL 화면 데이터 조회", r.status_code == 200, r.text)
+_v = r.json()
+check("OS 매핑 항목 노출", len(_v["items"]) == len(_eol.OS_PRODUCTS), len(_v["items"]))
+check("연동 대상 아닌 코드 표시", "기타" in _v["unmapped_os"], _v["unmapped_os"])
+
+_online = bool(_v["items"] and any(i["cycles"] for i in _v["items"]))
+if not _online:
+    r = c.get("/api/eol?refresh=true")
+    _v = r.json()
+    _online = bool(_v["items"] and any(i["cycles"] for i in _v["items"]))
+
+if _online:
+    win10 = next(i for i in _v["items"] if i["os"] == "Windows 10")
+    check("Windows 10 추천 릴리스", win10["cycle"] and win10["cycle"].startswith("10-"), win10["cycle"])
+    check("Windows 10 지원종료 판정", win10["expired"] is True, win10)
+    check("LTSC가 아닌 일반 릴리스 추천", "lts" not in (win10["cycle"] or ""), win10["cycle"])
+
+    r = c.post("/api/assets", json={**base, "asset_no": "PC-EOL-001", "serial_no": "SN-EOL-1",
+                                    "os": "Windows 10"})
+    eid = r.json()["id"]
+    r = c.post("/api/eol/apply", json={"mapping": {"Windows 10": win10["cycle"]}})
+    check("자산에 지원종료일 반영", r.json()["updated"] >= 1, r.text)
+    d_ = c.get(f"/api/assets/{eid}").json()
+    check("os_eol_date 저장", d_["os_eol_date"] == win10["eol"], d_["os_eol_date"])
+    hh = c.get(f"/api/assets/{eid}/history").json()["items"][0]
+    check("반영 이력 기록", hh["extra"].get("source") == "endoflife.date", hh["extra"])
+    check("빠른 필터 os_eol_expired", c.get("/api/assets?quick=os_eol_expired").json()["total"] >= 1)
+    check("EOL 요약", c.get("/api/eol/summary").json()["expired_total"] >= 1)
+else:
+    print("  SKIP  외부 API에 연결할 수 없어 반영 검증은 건너뜁니다 (연동은 선택 기능)")
+
+r = c.post("/api/eol/apply", json={"mapping": {}})
+check("빈 매핑 차단", r.status_code == 400, r.text)
+check("미인증 EOL 접근 차단", TestClient(app).get("/api/eol/summary").status_code == 401)
+
 print("== 03-8 / 05-8 계정별 화면 설정 ==")
 check("초기 설정 비어 있음", c.get("/api/me/prefs").json()["prefs"] == {}, c.get("/api/me/prefs").text)
 cols = ["asset_no", "status", "purchase_date"]

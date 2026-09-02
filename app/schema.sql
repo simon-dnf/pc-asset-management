@@ -175,6 +175,15 @@ CREATE TABLE IF NOT EXISTS import_batch (
     revert_note  TEXT
 );
 
+-- ---------------------------------------------------------------- 시스템 설정
+-- 계정과 무관한 시스템 전역 설정. (예: OS 지원종료일 연동 매핑·캐시)
+CREATE TABLE IF NOT EXISTS app_setting (
+    setting_key TEXT PRIMARY KEY,
+    value_json  TEXT NOT NULL,
+    updated_at  TEXT NOT NULL,
+    updated_by  TEXT
+);
+
 -- ---------------------------------------------------------------- 로그 (FR-04-9, FR-07-7)
 CREATE TABLE IF NOT EXISTS delete_log (
     id            INTEGER PRIMARY KEY AUTOINCREMENT,

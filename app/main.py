@@ -1,7 +1,8 @@
 """PC 자산관리 시스템 v1 — 애플리케이션 진입점.
 
-폐쇄망 전제(NFR-01): 외부 CDN·폰트·SaaS를 사용하지 않는다.
 정적 프런트엔드(web/)를 이 서버가 그대로 서빙하므로 별도 빌드 도구가 필요 없다.
+화면 자체는 외부 CDN 없이 동작한다. 외부 API 연동은 서버 측에서만 하고,
+장애가 나도 화면과 자산 CRUD는 그대로 돌아가야 한다 (NFR-15).
 """
 from __future__ import annotations
 
@@ -14,7 +15,8 @@ from fastapi.staticfiles import StaticFiles
 
 from .core import AppError
 from .db import init_db
-from .routers import accounts, assets, codes, dashboard, employees, history, imports, session_api
+from .routers import (accounts, assets, codes, dashboard, employees, eol, history, imports,
+                      session_api)
 from . import seed
 
 log = logging.getLogger("pcams")
@@ -52,7 +54,8 @@ async def _unhandled(request: Request, exc: Exception):
 
 
 for r in (session_api.router, accounts.router, assets.bulk_router, assets.router,
-          employees.router, codes.router, dashboard.router, history.router, imports.router):
+          employees.router, codes.router, dashboard.router, history.router, imports.router,
+          eol.router):
     app.include_router(r, prefix="/api")
 
 
@@ -62,7 +65,21 @@ def health():
 
 
 # ---------------------------------------------------------------- 정적 파일 / SPA
-app.mount("/static", StaticFiles(directory=WEB_DIR), name="static")
+class NoCacheStatic(StaticFiles):
+    """화면 파일(js/css)에 `no-cache`를 붙인다.
+
+    브라우저가 이전 버전을 붙잡고 있으면 프로그램을 갱신해도 화면이 그대로여서
+    관리자가 매번 Ctrl+F5를 눌러야 한다. `no-cache`는 캐시를 금지하는 게 아니라
+    **쓰기 전에 서버에 물어보게** 하는 것이라, 바뀌지 않았으면 304로 끝나 부담이 거의 없다.
+    """
+
+    def file_response(self, *args, **kwargs):
+        resp = super().file_response(*args, **kwargs)
+        resp.headers["Cache-Control"] = "no-cache, must-revalidate"
+        return resp
+
+
+app.mount("/static", NoCacheStatic(directory=WEB_DIR), name="static")
 
 
 @app.get("/{full_path:path}")
@@ -73,6 +90,7 @@ def spa(full_path: str):
         candidate.relative_to(WEB_DIR.resolve())
     except ValueError:
         candidate = None
+    headers = {"Cache-Control": "no-cache, must-revalidate"}
     if full_path and candidate and candidate.is_file():
-        return FileResponse(candidate)
-    return FileResponse(WEB_DIR / "index.html")
+        return FileResponse(candidate, headers=headers)
+    return FileResponse(WEB_DIR / "index.html", headers=headers)

@@ -14,6 +14,7 @@ import { renderImport } from './pages/importer.js';
 import { renderHistory } from './pages/history.js';
 import { renderEmployees, renderEmployeeDetail } from './pages/employees.js';
 import { renderCodes } from './pages/codes.js';
+import { renderEol } from './pages/eol.js';
 import { renderAccounts, renderPassword } from './pages/accounts.js';
 
 export const state = {
@@ -44,6 +45,7 @@ const ROUTES = [
   [/^\/employees$/,               (m, q) => renderEmployees(q)],
   [/^\/employees\/([^/]+)$/,      (m, q) => renderEmployeeDetail(decodeURIComponent(m[1]), q)],
   [/^\/codes$/,                   (m, q) => renderCodes(q)],
+  [/^\/eol$/,                     (m, q) => renderEol(q)],
   [/^\/accounts$/,                (m, q) => renderAccounts(q)],
   [/^\/password$/,                (m, q) => renderPassword(q)],
 ];
@@ -109,6 +111,7 @@ const NAV = [
   { path: '/history', label: '이력' },
   { label: '설정', children: [
     { path: '/codes', label: '공통코드' },
+    { path: '/eol', label: 'OS 지원종료 관리' },
     { path: '/accounts', label: '계정 관리' },
   ] },
 ];

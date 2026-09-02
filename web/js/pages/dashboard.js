@@ -13,6 +13,8 @@ const ACTIONS = [
   { key: 'long_repair', icon: '🔧', label: '30일 이상 수리 중',  quick: 'long_repair', tone: 'amber' },
   { key: 'to_dispose',  icon: '📦', label: '폐기예정 미처리',    quick: 'to_dispose',  tone: 'amber' },
   { key: 'due_soon',    icon: '📅', label: '7일 내 반납 예정',   quick: 'due_soon',    tone: 'blue' },
+  { key: 'os_eol_expired', icon: '🛡', label: 'OS 지원종료 자산',  quick: 'os_eol_expired', tone: 'red' },
+  { key: 'os_eol_soon', icon: '📆', label: '1년 내 OS 지원종료', quick: 'os_eol_soon', tone: 'amber' },
   { key: 'aged',        icon: '🕰', label: '내용연수 초과 자산',  quick: 'aged',        tone: 'blue' },
 ];
 
@@ -159,7 +161,7 @@ export async function renderDashboard(query = {}) {
   return root;
 }
 
-/** 외부 차트 라이브러리 없이 conic-gradient로 도넛을 그린다 (NFR-01). */
+/** 외부 차트 라이브러리 없이 conic-gradient로 도넛을 그린다. */
 function donut(types) {
   const total = types.reduce((s, t) => s + t.count, 0) || 1;
   let acc = 0;

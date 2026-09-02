@@ -48,5 +48,5 @@ export function renderLogin() {
         h('p', {}, 'IT 관리자 전용')),
       form,
       h('p', { class: 'muted small mt16', style: 'text-align:center' },
-        '사내 폐쇄망 전용 시스템입니다.')));
+        '사내 자산관리 전용 시스템입니다.')));
 }

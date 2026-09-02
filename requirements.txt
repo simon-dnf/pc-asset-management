@@ -1,6 +1,6 @@
 # PC 자산관리 시스템 v1 — 런타임 의존성
-# 폐쇄망 반입 시: 인터넷 환경에서 `pip download -r requirements.txt -d wheels` 로 휠을 받아
-# 사내 서버에서 `pip install --no-index --find-links wheels -r requirements.txt` 로 설치한다.
+# 인터넷이 닫힌 서버에 넣어야 한다면: `pip download -r requirements.txt -d wheels` 로 휠을 받아
+# `pip install --no-index --find-links wheels -r requirements.txt` 로 설치한다.
 
 fastapi>=0.110
 uvicorn>=0.27

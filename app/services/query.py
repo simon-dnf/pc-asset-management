@@ -118,6 +118,12 @@ def build_where(f: dict) -> tuple[str, list]:
     elif quick == "to_dispose":
         where.append("a.status = ?")
         params.append(ST_TO_DISPOSE)
+    elif quick == "os_eol_expired":              # OS 지원종료 (외부 EOL 연동)
+        where.append("a.status <> ? AND a.os_eol_date IS NOT NULL AND a.os_eol_date < ?")
+        params += [ST_DISPOSED, today_str()]
+    elif quick == "os_eol_soon":                 # 1년 내 OS 지원종료
+        where.append("a.status <> ? AND a.os_eol_date BETWEEN ? AND ?")
+        params += [ST_DISPOSED, today_str(), plus_days(365)]
     elif quick == "aged":                        # 내용연수 초과 (11-6)
         where.append(
             "a.status <> ? AND a.purchase_date <= date('now','localtime','-' || "

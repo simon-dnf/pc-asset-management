@@ -1,7 +1,7 @@
 """SQLite 연결/트랜잭션 헬퍼.
 
 PRD-Master §9.1은 PostgreSQL을 제안하지만 확정이 아니며, 대상 규모(자산 1,500건)와
-폐쇄망 단일 서버 배포(NFR-01, NFR-10 단일 파일 백업)를 고려해 SQLite를 사용한다.
+단일 서버 배포와 파일 1개 백업(NFR-10)을 고려해 SQLite를 사용한다.
 SQL은 표준 문법 위주로 작성해 필요 시 PostgreSQL 이관이 가능하도록 유지한다.
 """
 from __future__ import annotations

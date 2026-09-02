@@ -50,6 +50,19 @@ ACTION_SQL = {
                     JOIN employee e ON e.emp_no = g.emp_no
                     WHERE a.status = ? AND e.employ_status = '퇴사' ORDER BY g.issue_date""",
                  lambda: [ST_INUSE]),
+    # OS 지원종료 (외부 EOL 연동으로 채워진 os_eol_date 기준. 외부 호출 없이 DB만 읽는다)
+    "os_eol_expired": ("""SELECT a.id, a.asset_no, a.model_name, a.site, g.user_name, g.emp_no,
+                                 a.os || ' · ' || a.os_eol_date AS info
+                          FROM asset a LEFT JOIN assignment g ON g.asset_id = a.id AND g.is_current = 1
+                          WHERE a.status <> ? AND a.os_eol_date IS NOT NULL AND a.os_eol_date < ?
+                          ORDER BY a.os_eol_date""", lambda: [ST_DISPOSED, today_str()]),
+    # 1년 내 OS 지원종료
+    "os_eol_soon": ("""SELECT a.id, a.asset_no, a.model_name, a.site, g.user_name, g.emp_no,
+                              a.os || ' · ' || a.os_eol_date AS info
+                       FROM asset a LEFT JOIN assignment g ON g.asset_id = a.id AND g.is_current = 1
+                       WHERE a.status <> ? AND a.os_eol_date BETWEEN ? AND ?
+                       ORDER BY a.os_eol_date""",
+                    lambda: [ST_DISPOSED, today_str(), plus_days(365)]),
     # 내용연수 초과 (11-6)
     "aged": ("""SELECT a.id, a.asset_no, a.model_name, a.site, g.user_name, g.emp_no,
                        a.purchase_date AS info

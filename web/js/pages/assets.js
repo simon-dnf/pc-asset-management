@@ -18,12 +18,13 @@ const QUICK = [
   { key: 'unassigned',  label: '사용자 미지정' },
   { key: 'resigned',    label: '퇴사자 미회수' },
   { key: 'aged',        label: '내용연수 초과' },
+  { key: 'os_eol_expired', label: 'OS 지원종료' },
 ];
 
 const QUICK_LABELS = {
   overdue: '반납예정일 초과', due_soon: '7일 내 반납 예정', unassigned: '사용자 미지정',
   resigned: '퇴사자 미회수', long_repair: '30일 이상 수리', to_dispose: '폐기예정',
-  aged: '내용연수 초과',
+  aged: '내용연수 초과', os_eol_expired: 'OS 지원종료', os_eol_soon: '1년 내 OS 지원종료',
 };
 
 const FILTER_LABELS = {
