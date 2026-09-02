@@ -1,0 +1,15 @@
+# 줄바꿈 정규화. 저장소에는 LF로 보관한다.
+* text=auto eol=lf
+
+# 배치 파일은 반드시 CRLF로 체크아웃되어야 한다.
+# LF로 내려받으면 cmd가 명령을 잘못 해석해 실행이 깨진다.
+*.bat text eol=crlf
+*.cmd text eol=crlf
+
+# 바이너리로 취급 (줄바꿈 변환 금지)
+*.db     binary
+*.xlsx   binary
+*.xls    binary
+*.zip    binary
+*.png    binary
+*.jpg    binary

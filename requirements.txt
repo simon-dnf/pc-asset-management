@@ -1,0 +1,14 @@
+# PC 자산관리 시스템 v1 — 런타임 의존성
+# 폐쇄망 반입 시: 인터넷 환경에서 `pip download -r requirements.txt -d wheels` 로 휠을 받아
+# 사내 서버에서 `pip install --no-index --find-links wheels -r requirements.txt` 로 설치한다.
+
+fastapi>=0.110
+uvicorn>=0.27
+openpyxl>=3.1        # 엑셀 읽기/쓰기 (.xlsx)
+bcrypt>=4.0          # 비밀번호 해시 (NFR-07)
+python-multipart>=0.0.9   # 엑셀 업로드(multipart) 처리
+xlrd>=2.0            # 레거시 .xls 읽기 (선택 — 없으면 .xls만 미지원)
+
+# DB는 Python 표준 라이브러리 sqlite3를 사용한다 (별도 설치 불필요).
+# 자체 점검(tools/selftest.py) 실행 시에만 추가로 필요:
+#   httpx2
